@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Payroll Vietnam</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single working column — inputs panel left, results right; stacks on phone */
+:root{
+  --bg:#f5f6f3; --surface:#ffffff; --fg:#1b2420; --muted:#5d6a63; --line:#dde3de;
+  --accent:#1d6b55; --accent-soft:#e3efe9; --warn:#9a5b12; --warn-soft:#fbf1e2;
+  --sans:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121815; --surface:#1a221e; --fg:#e7ece9; --muted:#9aa8a0; --line:#2b3530;
+  --accent:#5cc3a2; --accent-soft:#1f3229; --warn:#e2a95a; --warn-soft:#2e2517; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121815; --surface:#1a221e; --fg:#e7ece9; --muted:#9aa8a0; --line:#2b3530;
+  --accent:#5cc3a2; --accent-soft:#1f3229; --warn:#e2a95a; --warn-soft:#2e2517; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+header h1{font-size:1.7rem;font-weight:700;margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:.35rem 0 0;color:var(--muted);max-width:68ch}
+.stamp{display:inline-block;font-family:var(--mono);font-size:.75rem;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:4px;margin-top:.6rem}
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;margin-bottom:6px;display:block}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{flex:1;font:inherit;font-size:.85rem;padding:8px 6px;border:0;background:transparent;color:var(--fg);cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--surface);font-weight:600}
+.seg button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,select{font:inherit;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--fg)}
+input[type=number]{font-family:var(--mono)}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem}.check input{width:auto;margin-top:4px}
+.hint{font-size:.78rem;color:var(--muted);margin-top:4px}
+details summary{cursor:pointer;font-weight:600;font-size:.9rem}
+details[open] summary{margin-bottom:12px}
+.adv{display:flex;flex-direction:column;gap:14px}
+.results{display:flex;flex-direction:column;gap:20px;min-width:0}
+.hero{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+@media (max-width:560px){.hero{grid-template-columns:minmax(0,1fr)}}
+.hero div{background:var(--surface);padding:16px}
+.hero .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.hero .v{font-family:var(--mono);font-size:1.45rem;font-weight:500;font-variant-numeric:tabular-nums;margin-top:4px}
+.hero .s{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.hero .main .v{color:var(--accent)}
+h2{font-size:1.05rem;margin:0 0 10px;font-weight:600}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tr.total td{font-weight:600;border-top:2px solid var(--fg)}
+tr.sub td:first-child{padding-left:22px;color:var(--muted)}
+tr.best td{background:var(--accent-soft)}
+.pill{display:inline-block;font-size:.7rem;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--accent);color:var(--surface);margin-left:6px;vertical-align:1px}
+.note{background:var(--warn-soft);color:var(--fg);border-left:3px solid var(--warn);padding:12px 14px;border-radius:0 7px 7px 0;font-size:.86rem}
+.note b{color:var(--warn)}
+ul.as{margin:0;padding-left:18px;font-size:.86rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.src a{color:var(--accent)}
+footer{font-size:.8rem;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <h1>Калькулятор стоимости сотрудника — Вьетнам</h1>
+  <p>Гросс ↔ на руки и полная стоимость для компании по трём формам найма: трудовой договор, подрядчик, EOR.</p>
+  <span class="stamp">Ставки актуальны на ноябрь 2026</span>
+</header>
+
+<div class="grid">
+<form class="panel" id="f" autocomplete="off">
+  <div>
+    <span class="lbl">Форма найма</span>
+    <div class="seg" id="form">
+      <button type="button" data-v="labor" aria-pressed="true">Трудовой</button>
+      <button type="button" data-v="contractor" aria-pressed="false">Подрядчик</button>
+      <button type="button" data-v="eor" aria-pressed="false">EOR</button>
+    </div>
+  </div>
+  <div>
+    <span class="lbl">Что вводим</span>
+    <div class="seg" id="dir">
+      <button type="button" data-v="gross" aria-pressed="true">Гросс / ставка</button>
+      <button type="button" data-v="net" aria-pressed="false">На руки</button>
+    </div>
+  </div>
+  <div class="row">
+    <div><label class="lbl" for="amt">Сумма в месяц</label><input type="number" id="amt" value="2000" min="0" step="50"></div>
+    <div style="flex:0 0 96px"><label class="lbl" for="cur">Валюта</label><select id="cur"><option value="USD">USD</option><option value="VND">VND</option></select></div>
+  </div>
+  <div>
+    <label class="lbl" for="fx">Курс, ₫ за 1 $</label><input type="number" id="fx" value="26300" step="10">
+    <div class="hint">Подставьте текущий курс.</div>
+  </div>
+  <div class="row">
+    <div><label class="lbl" for="region">Регион</label>
+      <select id="region"><option value="I">I — Ханой, Хошимин</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>
+    <div style="flex:0 0 110px"><label class="lbl" for="deps">Иждивенцы</label><input type="number" id="deps" value="0" min="0" step="1"></div>
+  </div>
+  <label class="check"><input type="checkbox" id="m13" checked> <span>13-я зарплата (бонус на Тет)<span class="hint" style="display:block">Рыночная норма во Вьетнаме, кандидаты её ждут.</span></span></label>
+
+  <details>
+    <summary>Подрядчик и EOR: настройки</summary>
+    <div class="adv">
+      <div><label class="lbl" for="ctax">Налог подрядчика, % с выплаты</label><input type="number" id="ctax" value="10" step="0.5" min="0" max="50">
+        <div class="hint">10% — стандартное удержание с оплаты услуг физлица. При годовом доходе до 500 млн ₫ налог может быть 0 — уточните у местного бухгалтера.</div></div>
+      <div><label class="lbl" for="cins">Подрядчик сам платит страховку, % от выплаты</label><input type="number" id="cins" value="0" step="0.5" min="0" max="40">
+        <div class="hint">Добровольное соцстрахование. Поставьте, если хотите, чтобы ставка покрывала его.</div></div>
+      <div><label class="lbl" for="eorfee">Комиссия EOR, $ в месяц</label><input type="number" id="eorfee" value="500" step="25" min="0">
+        <div class="hint">Пример. Замените на тариф вашего провайдера.</div></div>
+      <div><label class="lbl" for="tfee">Комиссия за перевод, %</label><input type="number" id="tfee" value="1" step="0.1" min="0" max="10">
+        <div class="hint">Банк, Wise, Deel. Для подрядчика и EOR.</div></div>
+    </div>
+  </details>
+</form>
+
+<section class="results">
+  <div class="hero" id="hero"></div>
+
+  <div class="panel">
+    <h2 id="bdTitle">Разбивка расчёта</h2>
+    <div class="tbl"><table id="bd"></table></div>
+  </div>
+
+  <div class="panel">
+    <h2>Сравнение форм найма при одинаковой сумме на руки</h2>
+    <div class="tbl"><table id="cmp"></table></div>
+  </div>
+
+  <div class="note" id="warn"></div>
+
+  <div class="panel">
+    <h2>Допущения</h2>
+    <ul class="as">
+      <li>Сотрудник — гражданин Вьетнама и налоговый резидент (живёт во Вьетнаме 183+ дней в году).</li>
+      <li>Шкала НДФЛ: 5 ступеней (5–35%) по новому закону о подоходном налоге, применяется к доходам от работы с 2026 налогового периода.</li>
+      <li>Вычеты: 15,5 млн ₫ на себя и 6,2 млн ₫ на каждого иждивенца в месяц (с 01.01.2026).</li>
+      <li>Взносы считаются с гросс-зарплаты целиком. Потолок для соц- и медстраха — 20 × базовый оклад (2,53 млн ₫ с 01.07.2026) = 50,6 млн ₫. Потолок для страхования от безработицы — 20 × региональный МРОТ.</li>
+      <li>13-я зарплата облагается НДФЛ (считается по годовой шкале), но страховые взносы с неё не платятся.</li>
+      <li>Работодатель платит 2% профсоюзного сбора с базы соцстраха.</li>
+      <li>Трудовой договор напрямую возможен только при наличии юрлица во Вьетнаме. Без него — подрядчик или EOR.</li>
+      <li>Налог подрядчика упрощён до ставки с выплаты. Расчёт EOR = трудовой договор + комиссия провайдера + комиссия за перевод.</li>
+    </ul>
+  </div>
+
+  <div class="panel src">
+    <h2>Источники</h2>
+    <ul class="as">
+      <li><a href="https://www.pwc.com/vn/en/publications/2025/251212-new-personal-income-tax-law.pdf" target="_blank" rel="noopener">PwC Vietnam — новый закон о НДФЛ (дек. 2025)</a></li>
+      <li><a href="https://luatvietnam.vn/legal-news/update-now-personal-income-tax-policies-2026-five-major-changes-4729-107272-article.html" target="_blank" rel="noopener">LuatVietnam — изменения НДФЛ 2026, вычеты</a></li>
+      <li><a href="https://www.cake.me/resources/recruitment/shui-vietnam" target="_blank" rel="noopener">Cake — ставки SI/HI/UI и МРОТ 2026</a></li>
+      <li><a href="https://www.vietnam-briefing.com/news/vietnam-raises-statutory-basic-salary-from-july-2026-implications-for-employers.html" target="_blank" rel="noopener">Vietnam Briefing — базовый оклад с июля 2026</a></li>
+    </ul>
+  </div>
+
+  <footer>Калькулятор ориентировочный и не заменяет консультацию налогового специалиста. Ставки собраны в объекте CONFIG в начале скрипта — обновляйте их раз в год.</footer>
+</section>
+</div>
+</div>
+
+<script>
+/* ===== CONFIG: обновлять при изменении законодательства ===== */
+const CONFIG = {
+  pitBrackets: [ // месячный облагаемый доход, ₫ → ставка
+    [10e6, .05], [30e6, .10], [60e6, .20], [100e6, .30], [Infinity, .35]
+  ],
+  personalDeduction: 15.5e6,
+  dependentDeduction: 6.2e6,
+  baseSalary: 2.53e6,         // базовый оклад (с 01.07.2026)
+  capMultiplier: 20,
+  regionalMin: { I: 5.31e6, II: 4.73e6, III: 4.14e6, IV: 3.70e6 }, // с 01.01.2026
+  employee: { si: .08, hi: .015, ui: .01 },
+  employer: { si: .175, hi: .03, ui: .01, union: .02 }
+};
+
+const $ = id => document.getElementById(id);
+const state = { form: 'labor', dir: 'gross' };
+
+function seg(id, key){
+  $(id).addEventListener('click', e => {
+    const b = e.target.closest('button'); if(!b) return;
+    state[key] = b.dataset.v;
+    [...$(id).children].forEach(x => x.setAttribute('aria-pressed', x === b));
+    calc();
+  });
+}
+seg('form','form'); seg('dir','dir');
+$('f').addEventListener('input', calc);
+$('f').addEventListener('submit', e => e.preventDefault());
+
+function pit(taxable, months=1){
+  let tax = 0, prev = 0;
+  for(const [lim, r] of CONFIG.pitBrackets){
+    const top = lim * months;
+    if(taxable > prev){ tax += (Math.min(taxable, top) - prev) * r; }
+    prev = top;
+  }
+  return Math.max(0, tax);
+}
+
+function inputs(){
+  const fx = +$('fx').value || 1;
+  return {
+    fx, region: $('region').value, deps: Math.max(0, +$('deps').value || 0),
+    m13: $('m13').checked,
+    ctax: (+$('ctax').value || 0)/100, cins: (+$('cins').value || 0)/100,
+    eorFeeVnd: (+$('eorfee').value || 0) * fx, tfee: (+$('tfee').value || 0)/100,
+    amountVnd: (+$('amt').value || 0) * ($('cur').value === 'USD' ? fx : 1)
+  };
+}
+
+/* Трудовой договор: месяц и год */
+function labor(gross, p){
+  const siCap = CONFIG.baseSalary * CONFIG.capMultiplier;
+  const uiCap = CONFIG.regionalMin[p.region] * CONFIG.capMultiplier;
+  const insBase = Math.min(gross, siCap), uiBase = Math.min(gross, uiCap);
+  const E = CONFIG.employee, R = CONFIG.employer;
+  const eSi = insBase*E.si, eHi = insBase*E.hi, eUi = uiBase*E.ui;
+  const eIns = eSi + eHi + eUi;
+  const ded = CONFIG.personalDeduction + p.deps*CONFIG.dependentDeduction;
+  const taxable = Math.max(0, gross - eIns - ded);
+  const tax = pit(taxable);
+  const net = gross - eIns - tax;
+  const rSi = insBase*R.si, rHi = insBase*R.hi, rUi = uiBase*R.ui, rUn = insBase*R.union;
+  const er = rSi + rHi + rUi + rUn;
+  // год: 12 мес + 13-я (без взносов), НДФЛ по годовой шкале
+  const bonus = p.m13 ? gross : 0;
+  const yGross = gross*12 + bonus;
+  const yTaxable = Math.max(0, yGross - eIns*12 - ded*12);
+  const yTax = pit(yTaxable, 12);
+  return { gross, eSi, eHi, eUi, eIns, ded, taxable, tax, net, rSi, rHi, rUi, rUn, er,
+    cost: gross + er,
+    y: { gross: yGross, ins: eIns*12, tax: yTax, net: yGross - eIns*12 - yTax, er: er*12, cost: yGross + er*12 } };
+}
+function eor(gross, p){
+  const l = labor(gross, p);
+  const months = p.m13 ? 13 : 12;
+  const invoice = l.cost + p.eorFeeVnd;
+  const tf = invoice * p.tfee;
+  const yInvoice = l.y.cost + p.eorFeeVnd*12;
+  return { ...l, fee: p.eorFeeVnd, tf, cost: invoice + tf,
+    y: { ...l.y, cost: yInvoice * (1 + p.tfee) } };
+}
+function contractor(fee, p){
+  const tax = fee*p.ctax, ins = fee*p.cins;
+  const net = fee - tax - ins;
+  const tf = fee*p.tfee;
+  const months = p.m13 ? 13 : 12;
+  return { gross: fee, tax, ins, net, tf, cost: fee + tf,
+    y: { gross: fee*months, tax: tax*months, ins: ins*months, net: net*months, cost: (fee+tf)*months } };
+}
+const fns = { labor, eor, contractor };
+
+function solveNet(fn, target, p){
+  if(target <= 0) return 0;
+  let lo = 0, hi = target*3 + 1e7;
+  for(let i=0;i<80;i++){ const m=(lo+hi)/2; fn(m,p).net < target ? lo=m : hi=m; }
+  return hi;
+}
+
+const fmtV = v => Math.round(v).toLocaleString('ru-RU') + ' ₫';
+let FX = 1;
+const fmtU = v => '$' + Math.round(v/FX).toLocaleString('ru-RU');
+
+function calc(){
+  const p = inputs(); FX = p.fx;
+  const fn = fns[state.form];
+  const gross = state.dir === 'gross' ? p.amountVnd : solveNet(fn, p.amountVnd, p);
+  const r = fn(gross, p);
+
+  const grossLabel = state.form === 'contractor' ? 'Ставка подрядчика' : 'Гросс';
+  $('hero').innerHTML = [
+    ['', grossLabel, r.gross], ['main', 'На руки', r.net], ['', 'Стоимость для компании', r.cost]
+  ].map(([c,k,v]) => `<div class="${c}"><div class="k">${k} / мес</div><div class="v">${fmtU(v)}</div><div class="s">${fmtV(v)}</div></div>`).join('');
+
+  // разбивка
+  const line = (name, v, cls='') => `<tr class="${cls}"><td>${name}</td><td class="n">${fmtV(v)}</td><td class="n">${fmtU(v)}</td></tr>`;
+  let rows = `<tr><th>Статья</th><th>₫ / мес</th><th>$ / мес</th></tr>`;
+  if(state.form === 'contractor'){
+    $('bdTitle').textContent = 'Разбивка: подрядчик';
+    rows += line('Ставка подрядчика (выплата)', r.gross)
+      + line(`Налог подрядчика (${(p.ctax*100).toFixed(1)}%)`, -r.tax, 'sub')
+      + (r.ins ? line(`Добровольная страховка (${(p.cins*100).toFixed(1)}%)`, -r.ins, 'sub') : '')
+      + line('На руки', r.net, 'total')
+      + line(`Комиссия за перевод (${(p.tfee*100).toFixed(1)}%)`, r.tf, 'sub')
+      + line('Стоимость для компании', r.cost, 'total');
+  } else {
+    $('bdTitle').textContent = state.form === 'eor' ? 'Разбивка: EOR' : 'Разбивка: трудовой договор';
+    rows += line('Гросс', r.gross)
+      + line('Соцстрах сотрудника (8%)', -r.eSi, 'sub')
+      + line('Медстрах сотрудника (1,5%)', -r.eHi, 'sub')
+      + line('Страх. от безработицы (1%)', -r.eUi, 'sub')
+      + `<tr class="sub"><td>Вычеты (на себя${p.deps?` + ${p.deps} иждив.`:''}) — не деньги, уменьшают базу</td><td class="n">${fmtV(r.ded)}</td><td class="n">${fmtU(r.ded)}</td></tr>`
+      + `<tr class="sub"><td>Облагаемый доход</td><td class="n">${fmtV(r.taxable)}</td><td class="n">${fmtU(r.taxable)}</td></tr>`
+      + line('НДФЛ (прогрессивная шкала)', -r.tax, 'sub')
+      + line('На руки', r.net, 'total')
+      + line('Соцстрах работодателя (17,5%)', r.rSi, 'sub')
+      + line('Медстрах работодателя (3%)', r.rHi, 'sub')
+      + line('Страх. от безработицы (1%)', r.rUi, 'sub')
+      + line('Профсоюзный сбор (2%)', r.rUn, 'sub');
+    if(state.form === 'eor'){
+      rows += line('Комиссия EOR', r.fee, 'sub') + line(`Комиссия за перевод (${(p.tfee*100).toFixed(1)}%)`, r.tf, 'sub');
+    }
+    rows += line('Стоимость для компании', r.cost, 'total');
+  }
+  const months = p.m13 ? 13 : 12;
+  rows += `<tr><th colspan="3" style="text-align:left;padding-top:18px">За год (${p.m13 ? '12 мес + 13-я' : '12 мес'})</th></tr>`
+    + line('Начислено', r.y.gross) + line('На руки', r.y.net, 'total') + line('Стоимость для компании', r.y.cost, 'total');
+  $('bd').innerHTML = rows;
+
+  // сравнение при одинаковом net
+  const target = r.net;
+  const names = { labor: 'Трудовой договор', contractor: 'Подрядчик', eor: 'EOR' };
+  const res = Object.keys(fns).map(k => { const g = solveNet(fns[k], target, p); return { k, ...fns[k](g, p) }; });
+  const best = res.reduce((a,b) => a.y.cost <= b.y.cost ? a : b).k;
+  $('cmp').innerHTML = `<tr><th>Форма</th><th>Гросс / ставка</th><th>На руки</th><th>Компании / мес</th><th>Компании / год</th></tr>`
+    + res.map(x => `<tr class="${x.k===best?'best':''}"><td>${names[x.k]}${x.k===best?'<span class="pill">дешевле</span>':''}</td>
+      <td class="n">${fmtU(x.gross)}</td><td class="n">${fmtU(x.net)}</td><td class="n">${fmtU(x.cost)}</td><td class="n">${fmtU(x.y.cost)}</td></tr>`).join('');
+
+  let w = '<b>Проверьте перед оффером.</b> ';
+  if(state.form === 'labor') w += 'Трудовой договор напрямую требует юрлица во Вьетнаме. ';
+  if(state.form === 'contractor') w += 'Подрядчик сам отчитывается по налогам и не получает соцстраховку от компании. Если по факту это постоянная работа, есть риск переквалификации в трудовые отношения. ';
+  if(state.form === 'eor') w += 'Тариф EOR в расчёте — пример; запросите точную стоимость у провайдера (Deel, Remote, Oyster и т.п.). ';
+  w += 'Ставки налогов сверьте с местным бухгалтером.';
+  $('warn').innerHTML = w;
+}
+calc();
+</script>
+</body>
+</html>
