@@ -1,28 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Payroll Vietnam</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: single working column — inputs panel left, results right; stacks on phone */
+/* Layout: inputs panel left, results right; stacks on phone */
 :root{
   --bg:#f5f6f3; --surface:#ffffff; --fg:#1b2420; --muted:#5d6a63; --line:#dde3de;
   --accent:#1d6b55; --accent-soft:#e3efe9; --warn:#9a5b12; --warn-soft:#fbf1e2;
+  --c-net:#1d6b55; --c-tax:#c0812b; --c-eins:#7f9a8d; --c-er:#3d6f8f;
   --sans:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#121815; --surface:#1a221e; --fg:#e7ece9; --muted:#9aa8a0; --line:#2b3530;
-  --accent:#5cc3a2; --accent-soft:#1f3229; --warn:#e2a95a; --warn-soft:#2e2517; color-scheme:dark}}
+  --accent:#5cc3a2; --accent-soft:#1f3229; --warn:#e2a95a; --warn-soft:#2e2517;
+  --c-net:#5cc3a2; --c-tax:#e2a95a; --c-eins:#8aa597; --c-er:#7fb1d1; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121815; --surface:#1a221e; --fg:#e7ece9; --muted:#9aa8a0; --line:#2b3530;
-  --accent:#5cc3a2; --accent-soft:#1f3229; --warn:#e2a95a; --warn-soft:#2e2517; color-scheme:dark}
+  --accent:#5cc3a2; --accent-soft:#1f3229; --warn:#e2a95a; --warn-soft:#2e2517;
+  --c-net:#5cc3a2; --c-tax:#e2a95a; --c-eins:#8aa597; --c-er:#7fb1d1; color-scheme:dark}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5;
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
 .wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
 header h1{font-size:1.7rem;font-weight:700;margin:0;text-wrap:balance;letter-spacing:-.01em}
@@ -31,29 +35,49 @@ header p{margin:.35rem 0 0;color:var(--muted);max-width:68ch}
 .grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:24px;align-items:start}
 @media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
-.lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;margin-bottom:6px;display:block}
+.lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
-.seg button{flex:1;font:inherit;font-size:.85rem;padding:8px 6px;border:0;background:transparent;color:var(--fg);cursor:pointer}
+.seg button{flex:1;font:inherit;font-size:.83rem;padding:8px 6px;border:0;background:transparent;color:var(--fg);cursor:pointer;line-height:1.25}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--surface);font-weight:600}
-.seg button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seg.small button{padding:5px 12px;font-size:.8rem}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 input,select{font:inherit;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--fg)}
+input:disabled{opacity:.5}
 input[type=number]{font-family:var(--mono)}
 .row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
 .check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem}.check input{width:auto;margin-top:4px}
 .hint{font-size:.78rem;color:var(--muted);margin-top:4px}
-details summary{cursor:pointer;font-weight:600;font-size:.9rem}
-details[open] summary{margin-bottom:12px}
-.adv{display:flex;flex-direction:column;gap:14px}
+details.fold{border-top:1px solid var(--line);padding-top:14px}
+details.fold>summary{cursor:pointer;font-weight:600;font-size:.9rem;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::after{content:"+";font-family:var(--mono);color:var(--muted)}
+details.fold[open]>summary::after{content:"−"}
+details.fold[open]>summary{margin-bottom:14px}
+.fold-body{display:flex;flex-direction:column;gap:14px}
+.tip{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--muted);background:transparent;color:var(--muted);font:600 10px/1 var(--sans);cursor:help;padding:0;flex:0 0 auto;text-transform:none;letter-spacing:0;vertical-align:1px;margin-left:4px}
+.tip:hover,.tip:focus-visible{border-color:var(--accent);color:var(--accent)}
+#tipbox{position:fixed;z-index:50;max-width:min(260px,calc(100vw - 32px));background:var(--fg);color:var(--bg);font-size:.8rem;line-height:1.4;padding:8px 10px;border-radius:7px;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.18)}
 .results{display:flex;flex-direction:column;gap:20px;min-width:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:.83rem;padding:7px 12px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--fg);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--surface);border-color:var(--accent);font-weight:600}
+.btn.link{border:0;background:none;color:var(--accent);padding:0 4px;font-size:.8rem;text-decoration:underline;cursor:pointer}
+.btn.del{border:0;background:none;color:var(--muted);font-size:1rem;padding:0 6px;cursor:pointer}
+.btn.del:hover{color:var(--warn)}
+.toast{font-size:.8rem;color:var(--accent);min-height:1.2em}
 .hero{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-@media (max-width:560px){.hero{grid-template-columns:minmax(0,1fr)}}
+.hero.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:560px){.hero,.hero.four{grid-template-columns:minmax(0,1fr)}}
 .hero div{background:var(--surface);padding:16px}
 .hero .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
-.hero .v{font-family:var(--mono);font-size:1.45rem;font-weight:500;font-variant-numeric:tabular-nums;margin-top:4px}
+.hero .v{font-family:var(--mono);font-size:1.4rem;font-weight:500;font-variant-numeric:tabular-nums;margin-top:4px}
 .hero .s{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.hero .m{font-size:.75rem;color:var(--muted);margin-top:6px}
 .hero .main .v{color:var(--accent)}
-h2{font-size:1.05rem;margin:0 0 10px;font-weight:600}
+h2{font-size:1.05rem;margin:0;font-weight:600}
 .tbl{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:.88rem}
 th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
@@ -62,281 +86,634 @@ th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu
 td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
 tr.total td{font-weight:600;border-top:2px solid var(--fg)}
 tr.sub td:first-child{padding-left:22px;color:var(--muted)}
-tr.best td{background:var(--accent-soft)}
-.pill{display:inline-block;font-size:.7rem;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--accent);color:var(--surface);margin-left:6px;vertical-align:1px}
+tr.info td{color:var(--muted);font-style:italic}
+tr.pit td{font-size:.82rem;color:var(--muted);background:var(--bg)}
+tr.pit td:first-child{padding-left:36px}
+tr.sec th{text-align:left;padding-top:18px}
+.notes{display:flex;flex-direction:column;gap:10px}
 .note{background:var(--warn-soft);color:var(--fg);border-left:3px solid var(--warn);padding:12px 14px;border-radius:0 7px 7px 0;font-size:.86rem}
 .note b{color:var(--warn)}
+.bar{display:flex;height:30px;border-radius:6px;overflow:hidden;background:var(--line)}
+.bar span{display:block;height:100%;min-width:2px}
+.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;font-size:.86rem}
+@media (max-width:560px){.legend{grid-template-columns:minmax(0,1fr)}}
+.legend div{display:flex;gap:8px;align-items:baseline;min-width:0}
+.legend i{width:10px;height:10px;border-radius:2px;flex:0 0 auto;transform:translateY(1px)}
+.legend .lv{margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.legend .lp{color:var(--muted);font-family:var(--mono);font-size:.8rem;width:44px;text-align:right}
+.addrow{display:flex;gap:10px;flex-wrap:wrap}.addrow input{flex:1 1 200px;min-width:0;width:auto}
+.empty{color:var(--muted);font-size:.86rem}
+.rates{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.rates h3{grid-column:1/-1;font-size:.8rem;margin:8px 0 0;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.rates .lbl{text-transform:none;letter-spacing:0;font-size:.78rem}
 ul.as{margin:0;padding-left:18px;font-size:.86rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 .src a{color:var(--accent)}
 footer{font-size:.8rem;color:var(--muted)}
+#copyout{width:100%;min-height:140px;font-family:var(--mono);font-size:.8rem;padding:10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--fg)}
+@media (prefers-reduced-motion:no-preference){.bar span{transition:flex-basis .25s ease}}
+@media print{
+  body{background:#fff;color:#000;padding:0}
+  #f,.noprint,.actions,.addrow,details.rates-fold,#tipbox,.tip,.btn.del,.btn.link,#copyout{display:none!important}
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .panel{break-inside:avoid;border-color:#ccc}
+}
 </style>
 </head>
 <body>
-
 <div class="wrap">
 <header>
   <h1>Калькулятор стоимости сотрудника — Вьетнам</h1>
-  <p>Гросс ↔ на руки и полная стоимость для компании по трём формам найма: трудовой договор, подрядчик, EOR.</p>
+  <p>Трудовой договор через юрлицо во Вьетнаме: гросс ↔ на руки, НДФЛ (подоходный налог), взносы, полная стоимость для компании, отпуск и бюджет команды.</p>
   <span class="stamp">Ставки актуальны на ноябрь 2026</span>
 </header>
 
 <div class="grid">
 <form class="panel" id="f" autocomplete="off">
   <div>
-    <span class="lbl">Форма найма</span>
-    <div class="seg" id="form">
-      <button type="button" data-v="labor" aria-pressed="true">Трудовой</button>
-      <button type="button" data-v="contractor" aria-pressed="false">Подрядчик</button>
-      <button type="button" data-v="eor" aria-pressed="false">EOR</button>
+    <span class="lbl">Сотрудник <button type="button" class="tip" data-tip="От гражданства зависит, какие взносы платятся. Иностранцы не платят страхование от безработицы.">?</button></span>
+    <div class="seg" id="citizen">
+      <button type="button" data-v="vn" aria-pressed="true">Гражданин Вьетнама</button>
+      <button type="button" data-v="foreign" aria-pressed="false">Иностранец</button>
+    </div>
+    <label class="check" id="permitRow" hidden style="margin-top:10px"><input type="checkbox" id="permit" checked> <span>Договор от 12 месяцев и есть разрешение на работу <button type="button" class="tip" data-tip="Иностранец участвует в соцстрахе, только если у него договор на 12+ месяцев и разрешение на работу. Иначе платится только медстрах.">?</button></span></label>
+  </div>
+  <div>
+    <span class="lbl">Налоговый статус <button type="button" class="tip" data-tip="Резидент живёт во Вьетнаме 183+ дней в году и платит налог по шкале с вычетами. Нерезидент платит 20% со всего дохода без вычетов.">?</button></span>
+    <div class="seg" id="resident">
+      <button type="button" data-v="res" aria-pressed="true">Резидент (183+ дней)</button>
+      <button type="button" data-v="nonres" aria-pressed="false">Нерезидент</button>
     </div>
   </div>
   <div>
-    <span class="lbl">Что вводим</span>
+    <span class="lbl">Что вводим <button type="button" class="tip" data-tip="Гросс — зарплата до налогов. На руки — что сотрудник получит. Бюджет — сколько компания готова тратить в месяц всего, с налогами и взносами.">?</button></span>
     <div class="seg" id="dir">
-      <button type="button" data-v="gross" aria-pressed="true">Гросс / ставка</button>
+      <button type="button" data-v="gross" aria-pressed="true">Гросс</button>
       <button type="button" data-v="net" aria-pressed="false">На руки</button>
+      <button type="button" data-v="cost" aria-pressed="false">Бюджет компании</button>
     </div>
   </div>
   <div class="row">
-    <div><label class="lbl" for="amt">Сумма в месяц</label><input type="number" id="amt" value="2000" min="0" step="50"></div>
+    <div><label class="lbl" for="amt"><span id="amtLbl">Гросс в месяц</span> <button type="button" class="tip" data-tip="Сумма за обычный месяц. Если сотрудник на испытательном сроке, вводите полную зарплату после испытательного.">?</button></label><input type="number" id="amt" value="2000" min="0" step="50"></div>
     <div style="flex:0 0 96px"><label class="lbl" for="cur">Валюта</label><select id="cur"><option value="USD">USD</option><option value="VND">VND</option></select></div>
   </div>
   <div>
-    <label class="lbl" for="fx">Курс, ₫ за 1 $</label><input type="number" id="fx" value="26300" step="10">
+    <label class="lbl" for="fx">Курс, ₫ за 1 $ <button type="button" class="tip" data-tip="Курс вьетнамского донга к доллару. Влияет только на пересчёт в доллары — налоги считаются в донгах.">?</button></label><input type="number" id="fx" value="26300" step="10" min="1">
     <div class="hint">Подставьте текущий курс.</div>
   </div>
   <div class="row">
-    <div><label class="lbl" for="region">Регион</label>
+    <div><label class="lbl" for="region">Регион <button type="button" class="tip" data-tip="От региона зависит МРОТ (минимальная зарплата региона) и потолок для страхования от безработицы. Ханой и Хошимин — регион I.">?</button></label>
       <select id="region"><option value="I">I — Ханой, Хошимин</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option></select></div>
-    <div style="flex:0 0 110px"><label class="lbl" for="deps">Иждивенцы</label><input type="number" id="deps" value="0" min="0" step="1"></div>
+    <div style="flex:0 0 110px"><label class="lbl" for="deps">Иждивенцы <button type="button" class="tip" data-tip="Дети или родственники на содержании. За каждого налоговая база уменьшается на 6,2 млн ₫ в месяц. Только для резидентов.">?</button></label><input type="number" id="deps" value="0" min="0" step="1"></div>
   </div>
-  <label class="check"><input type="checkbox" id="m13" checked> <span>13-я зарплата (бонус на Тет)<span class="hint" style="display:block">Рыночная норма во Вьетнаме, кандидаты её ждут.</span></span></label>
+  <div class="hint" id="depsHint" hidden>Нерезиденты не получают вычетов на себя и иждивенцев, поэтому поле неактивно.</div>
+  <label class="check"><input type="checkbox" id="m13" checked> <span>13-я зарплата (бонус на Тет) <button type="button" class="tip" data-tip="Дополнительная месячная зарплата перед Новым годом по лунному календарю. По закону не обязательна, но кандидаты её ждут.">?</button><span class="hint" style="display:block">Рыночная норма во Вьетнаме, кандидаты её ждут.</span></span></label>
 
-  <details>
-    <summary>Подрядчик и EOR: настройки</summary>
-    <div class="adv">
-      <div><label class="lbl" for="ctax">Налог подрядчика, % с выплаты</label><input type="number" id="ctax" value="10" step="0.5" min="0" max="50">
-        <div class="hint">10% — стандартное удержание с оплаты услуг физлица. При годовом доходе до 500 млн ₫ налог может быть 0 — уточните у местного бухгалтера.</div></div>
-      <div><label class="lbl" for="cins">Подрядчик сам платит страховку, % от выплаты</label><input type="number" id="cins" value="0" step="0.5" min="0" max="40">
-        <div class="hint">Добровольное соцстрахование. Поставьте, если хотите, чтобы ставка покрывала его.</div></div>
-      <div><label class="lbl" for="eorfee">Комиссия EOR, $ в месяц</label><input type="number" id="eorfee" value="500" step="25" min="0">
-        <div class="hint">Пример. Замените на тариф вашего провайдера.</div></div>
-      <div><label class="lbl" for="tfee">Комиссия за перевод, %</label><input type="number" id="tfee" value="1" step="0.1" min="0" max="10">
-        <div class="hint">Банк, Wise, Deel. Для подрядчика и EOR.</div></div>
+  <details class="fold" id="foldPrecise">
+    <summary>Точнее: база взносов, выплаты, испытательный срок</summary>
+    <div class="fold-body">
+      <div><label class="lbl" for="sibase">Зарплата для соцстраха, ₫ <button type="button" class="tip" data-tip="Сумма, с которой считаются страховые взносы. В договоре её часто указывают отдельно — обычно это оклад без надбавок.">?</button></label><input type="number" id="sibase" placeholder="= гросс" min="0" step="100000">
+        <div class="hint">Часто это оклад без надбавок. Должно быть не ниже регионального МРОТ. Пусто — равна гроссу.</div></div>
+      <div><label class="lbl" for="allow">Необлагаемые выплаты в месяц, ₫ <button type="button" class="tip" data-tip="Часть гросса, с которой не берут налог: обеды, форма, телефон в пределах норм. Сотрудник получает их на руки.">?</button></label><input type="number" id="allow" value="0" min="0" step="100000">
+        <div class="hint">Входят в гросс. Уменьшают базу НДФЛ, взносы с них не платятся.</div></div>
+      <label class="check"><input type="checkbox" id="prob"> <span>На испытательном сроке <button type="button" class="tip" data-tip="На испытательном сроке можно платить меньше, но не ниже 85% от оклада по договору.">?</button></span></label>
+      <div><label class="lbl" for="probpct">% от оклада</label><input type="number" id="probpct" value="85" min="0" max="100" step="1" disabled>
+        <div class="hint">85% — минимум по закону.</div></div>
+    </div>
+  </details>
+
+  <details class="fold">
+    <summary>Отпуск и рабочее время</summary>
+    <div class="fold-body">
+      <div class="row">
+        <div><label class="lbl" for="leave">Дней отпуска <button type="button" class="tip" data-tip="Оплачиваемый ежегодный отпуск. Минимум по закону — 12 рабочих дней в год.">?</button></label><input type="number" id="leave" value="12" min="12" step="1">
+          <div class="hint">Минимум — 12.</div></div>
+        <div><label class="lbl" for="tenure">Стаж, лет <button type="button" class="tip" data-tip="За каждые 5 лет работы в одной компании добавляется 1 день отпуска.">?</button></label><input type="number" id="tenure" value="0" min="0" step="1">
+          <div class="hint">+1 день за 5 лет.</div></div>
+      </div>
+      <div class="row">
+        <div><label class="lbl" for="hol">Праздников <button type="button" class="tip" data-tip="Государственные праздники с полной оплатой. В 2026 году их 12, включая 5 дней Тета.">?</button></label><input type="number" id="hol" value="12" min="0" step="1">
+          <div class="hint">12 в 2026.</div></div>
+        <div><label class="lbl" for="wd">Раб. дней в месяц <button type="button" class="tip" data-tip="Нужно для дневной ставки: гросс делится на это число. 22 — пятидневка, 26 — шестидневка.">?</button></label><input type="number" id="wd" value="22" min="15" max="27" step="1">
+          <div class="hint">22 или 26.</div></div>
+      </div>
     </div>
   </details>
 </form>
 
 <section class="results">
+  <div class="toolbar">
+    <div class="seg small" id="per">
+      <button type="button" data-v="m" aria-pressed="true">Месяц</button>
+      <button type="button" data-v="y" aria-pressed="false">Год</button>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="copyBtn">Скопировать расчёт</button>
+      <button type="button" class="btn" id="printBtn">Печать / PDF</button>
+    </div>
+  </div>
+  <div class="hint noprint" id="frameHint" hidden>В окне Claude печать и скачивание файлов заблокированы. Они работают в версии на GitHub. Расчёт и CSV копируются в буфер обмена.</div>
+  <textarea id="copyout" hidden readonly></textarea>
+  <div class="toast noprint" id="toast" aria-live="polite"></div>
+
   <div class="hero" id="hero"></div>
+  <div class="notes" id="warns"></div>
 
   <div class="panel">
-    <h2 id="bdTitle">Разбивка расчёта</h2>
+    <h2>Из чего состоит стоимость сотрудника</h2>
+    <div class="bar" id="bar" role="img"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Разбивка расчёта</h2>
     <div class="tbl"><table id="bd"></table></div>
   </div>
 
   <div class="panel">
-    <h2>Сравнение форм найма при одинаковой сумме на руки</h2>
-    <div class="tbl"><table id="cmp"></table></div>
+    <h2>Отпуск и праздники</h2>
+    <div class="hero four" id="lv"></div>
+    <div class="tbl"><table id="lvt"></table></div>
   </div>
 
-  <div class="note" id="warn"></div>
+  <div class="panel">
+    <h2>Команда</h2>
+    <div class="addrow noprint">
+      <input type="text" id="who" placeholder="Имя или должность, например Matchmove Artist" aria-label="Имя или должность">
+      <button type="button" class="btn primary" id="addBtn">Добавить в список</button>
+    </div>
+    <div class="tbl"><table id="team"></table></div>
+    <div class="actions noprint">
+      <button type="button" class="btn" id="csvBtn">Экспорт CSV</button>
+      <button type="button" class="btn" id="clearBtn">Очистить список</button>
+    </div>
+  </div>
+
+  <div class="note"><b>Проверьте перед оффером.</b> Расчёт для трудового договора через собственное юрлицо во Вьетнаме. Расходы на открытие и обслуживание юрлица (регистрация, бухгалтерия, офис) сюда не входят. Ставки сверьте с местным бухгалтером.</div>
 
   <div class="panel">
     <h2>Допущения</h2>
-    <ul class="as">
-      <li>Сотрудник — гражданин Вьетнама и налоговый резидент (живёт во Вьетнаме 183+ дней в году).</li>
-      <li>Шкала НДФЛ: 5 ступеней (5–35%) по новому закону о подоходном налоге, применяется к доходам от работы с 2026 налогового периода.</li>
-      <li>Вычеты: 15,5 млн ₫ на себя и 6,2 млн ₫ на каждого иждивенца в месяц (с 01.01.2026).</li>
-      <li>Взносы считаются с гросс-зарплаты целиком. Потолок для соц- и медстраха — 20 × базовый оклад (2,53 млн ₫ с 01.07.2026) = 50,6 млн ₫. Потолок для страхования от безработицы — 20 × региональный МРОТ.</li>
-      <li>13-я зарплата облагается НДФЛ (считается по годовой шкале), но страховые взносы с неё не платятся.</li>
-      <li>Работодатель платит 2% профсоюзного сбора с базы соцстраха.</li>
-      <li>Трудовой договор напрямую возможен только при наличии юрлица во Вьетнаме. Без него — подрядчик или EOR.</li>
-      <li>Налог подрядчика упрощён до ставки с выплаты. Расчёт EOR = трудовой договор + комиссия провайдера + комиссия за перевод.</li>
-    </ul>
+    <ul class="as" id="assume"></ul>
   </div>
+
+  <details class="panel fold rates-fold" id="ratesFold">
+    <summary>Ставки и лимиты</summary>
+    <div class="fold-body">
+      <div class="note"><b>С 01.01.2027 региональные МРОТ вырастут — обновите значения.</b> Изменённые ставки сохраняются в этом браузере.</div>
+      <div class="rates" id="rates"></div>
+      <div><button type="button" class="btn" id="resetRates">Сбросить к ноябрю 2026</button></div>
+    </div>
+  </details>
 
   <div class="panel src">
     <h2>Источники</h2>
     <ul class="as">
       <li><a href="https://www.pwc.com/vn/en/publications/2025/251212-new-personal-income-tax-law.pdf" target="_blank" rel="noopener">PwC Vietnam — новый закон о НДФЛ (дек. 2025)</a></li>
       <li><a href="https://luatvietnam.vn/legal-news/update-now-personal-income-tax-policies-2026-five-major-changes-4729-107272-article.html" target="_blank" rel="noopener">LuatVietnam — изменения НДФЛ 2026, вычеты</a></li>
-      <li><a href="https://www.cake.me/resources/recruitment/shui-vietnam" target="_blank" rel="noopener">Cake — ставки SI/HI/UI и МРОТ 2026</a></li>
+      <li><a href="https://www.cake.me/resources/recruitment/shui-vietnam" target="_blank" rel="noopener">Cake — ставки SI/HI/UI, иностранцы и МРОТ 2026</a></li>
       <li><a href="https://www.vietnam-briefing.com/news/vietnam-raises-statutory-basic-salary-from-july-2026-implications-for-employers.html" target="_blank" rel="noopener">Vietnam Briefing — базовый оклад с июля 2026</a></li>
+      <li><a href="https://talenthub.glints.com/en-sg/blog/employee-leave-vietnam" target="_blank" rel="noopener">Glints — отпуск и праздники во Вьетнаме 2026</a></li>
+      <li><a href="https://aniday.com/en/blog/vietnam-leave-policies-maternity-3334" target="_blank" rel="noopener">Aniday — оплата отпуска и компенсация при увольнении</a></li>
     </ul>
   </div>
 
-  <footer>Калькулятор ориентировочный и не заменяет консультацию налогового специалиста. Ставки собраны в объекте CONFIG в начале скрипта — обновляйте их раз в год.</footer>
+  <footer>Калькулятор ориентировочный и не заменяет консультацию налогового специалиста. Ставки по умолчанию собраны в объекте CONFIG в начале скрипта, их можно менять и в блоке «Ставки и лимиты».</footer>
 </section>
 </div>
 </div>
+<div id="tipbox" hidden></div>
 
-<script>
-/* ===== CONFIG: обновлять при изменении законодательства ===== */
+<script id="core">
+/* ===== CONFIG: ставки по умолчанию (ноябрь 2026) ===== */
 const CONFIG = {
   pitBrackets: [ // месячный облагаемый доход, ₫ → ставка
     [10e6, .05], [30e6, .10], [60e6, .20], [100e6, .30], [Infinity, .35]
   ],
   personalDeduction: 15.5e6,
   dependentDeduction: 6.2e6,
+  nonResidentRate: .20,       // НДФЛ нерезидента
   baseSalary: 2.53e6,         // базовый оклад (с 01.07.2026)
   capMultiplier: 20,
   regionalMin: { I: 5.31e6, II: 4.73e6, III: 4.14e6, IV: 3.70e6 }, // с 01.01.2026
   employee: { si: .08, hi: .015, ui: .01 },
-  employer: { si: .175, hi: .03, ui: .01, union: .02 }
+  employer: { si: .175, hi: .03, ui: .01, union: .02 },
+  minLeave: 12, leavePer5y: 1
 };
 
-const $ = id => document.getElementById(id);
-const state = { form: 'labor', dir: 'gross' };
+const num = (v, d = 0) => { if (v === '' || v == null) return d; v = +v; return Number.isFinite(v) ? v : d; };
+const pos = (v, d = 0) => Math.max(0, num(v, d));
 
+function cloneRates(s){
+  return { ...s, pitBrackets: s.pitBrackets.map(b => [b[0], b[1]]),
+    regionalMin: { ...s.regionalMin }, employee: { ...s.employee }, employer: { ...s.employer } };
+}
+function normalizeRates(R){
+  let prev = 0;
+  R.pitBrackets.forEach((b, i) => {
+    if (i === R.pitBrackets.length - 1) b[0] = Infinity;
+    else { b[0] = Math.max(pos(b[0]), prev); prev = b[0]; }
+    b[1] = pos(b[1]);
+  });
+  return R;
+}
+
+function pitCalc(taxable, R, months = 1){
+  let tax = 0, prev = 0; const parts = [];
+  for (const [lim, r] of R.pitBrackets){
+    const top = lim === Infinity ? Infinity : lim * months;
+    const amt = Math.max(0, Math.min(taxable, top) - prev);
+    parts.push({ from: prev, to: top, rate: r, amount: amt, tax: amt * r });
+    tax += amt * r; prev = top;
+    if (top === Infinity) break;
+  }
+  return { tax, parts };
+}
+
+/* fullGross — зарплата по договору; при испытательном сроке расчёт идёт с уменьшенной суммы */
+function compute(fullGross, p, R){
+  fullGross = pos(fullGross);
+  const pf = p.probation ? Math.min(100, pos(p.probPct, 85)) / 100 : 1;
+  const gross = fullGross * pf;
+  const allow = Math.min(pos(p.allow), gross);
+  const siBase = pos(p.siBase) > 0 ? Math.min(pos(p.siBase) * pf, gross) : gross;
+  const foreign = p.citizen === 'foreign';
+  const siOn = !foreign || !!p.permit12;
+  const uiOn = !foreign;
+  const regMin = R.regionalMin[p.region] || 0;
+  const siCap = R.baseSalary * R.capMultiplier, uiCap = regMin * R.capMultiplier;
+  const insBase = Math.min(siBase, siCap), uiBase = Math.min(siBase, uiCap);
+  const E = R.employee, ER = R.employer;
+  const eSi = siOn ? insBase * E.si : 0, eHi = insBase * E.hi, eUi = uiOn ? uiBase * E.ui : 0;
+  const eIns = eSi + eHi + eUi;
+  const rSi = siOn ? insBase * ER.si : 0, rHi = insBase * ER.hi, rUi = uiOn ? uiBase * ER.ui : 0, rUn = siOn ? insBase * ER.union : 0;
+  const er = rSi + rHi + rUi + rUn;
+  const resident = !!p.resident;
+  const deps = resident ? Math.floor(pos(p.deps)) : 0;
+  const ded = resident ? R.personalDeduction + deps * R.dependentDeduction : 0;
+  const income = gross - allow; // облагаемая часть гросса
+  let taxable, pit;
+  if (resident){ taxable = Math.max(0, income - eIns - ded); pit = pitCalc(taxable, R); }
+  else { taxable = income; pit = { tax: income * R.nonResidentRate, parts: null }; }
+  const tax = pit.tax;
+  const net = gross - eIns - tax;
+  const cost = gross + er;
+  const bonus = p.m13 ? gross : 0;
+  let bonusMonth = null;
+  if (bonus){
+    const t = resident ? pitCalc(Math.max(0, income + bonus - eIns - ded), R).tax : (income + bonus) * R.nonResidentRate;
+    bonusMonth = { gross: gross + bonus, tax: t, net: gross + bonus - eIns - t, cost: cost + bonus };
+  }
+  const yGross = gross * 12 + bonus;
+  const yTax = resident ? pitCalc(Math.max(0, income * 12 + bonus - eIns * 12 - ded * 12), R, 12).tax
+                        : (income * 12 + bonus) * R.nonResidentRate;
+  const y = { gross: yGross, eIns: eIns * 12, tax: yTax, net: yGross - eIns * 12 - yTax, er: er * 12, cost: yGross + er * 12 };
+  return { fullGross, pf, gross, allow, siBase, insBase, uiBase, siCap, uiCap, siOn, uiOn, foreign, resident, regMin,
+    eSi, eHi, eUi, eIns, rSi, rHi, rUi, rUn, er, deps, ded, income, taxable, tax, pitParts: pit.parts,
+    net, cost, bonus, bonusMonth, y };
+}
+
+/* Подбор зарплаты по договору под целевое «на руки» или «бюджет компании» (бинарный поиск) */
+function solve(field, target, p, R){
+  target = pos(target); if (!target) return 0;
+  const q = { ...p, probation: false };
+  let lo = 0, hi = Math.max(target * 4, 1e7);
+  for (let i = 0; i < 20 && compute(hi, q, R)[field] < target; i++) hi *= 2;
+  for (let i = 0; i < 100; i++){ const m = (lo + hi) / 2; compute(m, q, R)[field] < target ? lo = m : hi = m; }
+  return hi;
+}
+</script>
+
+<script>
+const $ = id => document.getElementById(id);
+const state = { citizen: 'vn', resident: 'res', dir: 'gross', per: 'm', showPit: false };
+const store = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+const inFrame = (() => { try { return window.self !== window.top; } catch(e){ return true; } })();
+if (inFrame) $('frameHint').hidden = false;
+
+/* ---------- Ставки: CONFIG + сохранённые правки ---------- */
+let R = loadRates();
+function loadRates(){
+  const r = cloneRates(CONFIG);
+  const s = store.get('pv-rates');
+  if (s && typeof s === 'object'){
+    try {
+      if (Array.isArray(s.pitBrackets)) s.pitBrackets.forEach((b, i) => { if (r.pitBrackets[i] && Array.isArray(b)){ if (b[0] != null) r.pitBrackets[i][0] = num(b[0], r.pitBrackets[i][0]); r.pitBrackets[i][1] = num(b[1], r.pitBrackets[i][1]); } });
+      ['personalDeduction','dependentDeduction','nonResidentRate','baseSalary','capMultiplier','minLeave','leavePer5y'].forEach(k => { if (k in s) r[k] = pos(s[k], r[k]); });
+      ['regionalMin','employee','employer'].forEach(g => { if (s[g]) Object.keys(r[g]).forEach(k => { if (k in s[g]) r[g][k] = pos(s[g][k], r[g][k]); }); });
+    } catch(e){}
+  }
+  return normalizeRates(r);
+}
+function saveRates(){
+  const s = cloneRates(R); s.pitBrackets = s.pitBrackets.map(b => [b[0] === Infinity ? null : b[0], b[1]]);
+  store.set('pv-rates', s);
+}
+const RATE_FIELDS = [
+  { h: 'Шкала НДФЛ, в месяц' },
+  ...[0,1,2,3].map(i => ({ path: ['pitBrackets', i, 0], label: `Ступень ${i+1}: до, ₫`, kind: 'vnd' })),
+  ...[0,1,2,3,4].map(i => ({ path: ['pitBrackets', i, 1], label: `Ставка ступени ${i+1}, %`, kind: 'pct' })),
+  { h: 'Вычеты и нерезиденты' },
+  { path: ['personalDeduction'], label: 'Вычет на себя, ₫', kind: 'vnd' },
+  { path: ['dependentDeduction'], label: 'Вычет на иждивенца, ₫', kind: 'vnd' },
+  { path: ['nonResidentRate'], label: 'НДФЛ нерезидента, %', kind: 'pct' },
+  { h: 'Лимиты и МРОТ' },
+  { path: ['baseSalary'], label: 'Базовый оклад, ₫', kind: 'vnd' },
+  { path: ['capMultiplier'], label: 'Множитель потолка', kind: 'num' },
+  ...['I','II','III','IV'].map(k => ({ path: ['regionalMin', k], label: `МРОТ региона ${k}, ₫`, kind: 'vnd' })),
+  { h: 'Взносы сотрудника' },
+  { path: ['employee','si'], label: 'Соцстрах, %', kind: 'pct' },
+  { path: ['employee','hi'], label: 'Медстрах, %', kind: 'pct' },
+  { path: ['employee','ui'], label: 'От безработицы, %', kind: 'pct' },
+  { h: 'Взносы работодателя' },
+  { path: ['employer','si'], label: 'Соцстрах, %', kind: 'pct' },
+  { path: ['employer','hi'], label: 'Медстрах, %', kind: 'pct' },
+  { path: ['employer','ui'], label: 'От безработицы, %', kind: 'pct' },
+  { path: ['employer','union'], label: 'Профсоюзный сбор, %', kind: 'pct' },
+  { h: 'Отпуск' },
+  { path: ['minLeave'], label: 'Мин. дней отпуска', kind: 'num' },
+  { path: ['leavePer5y'], label: 'Доп. дней за 5 лет', kind: 'num' }
+];
+const getP = path => path.reduce((o, k) => o[k], R);
+const setP = (path, v) => { const last = path[path.length - 1]; path.slice(0, -1).reduce((o, k) => o[k], R)[last] = v; };
+const showRate = f => { const v = getP(f.path); return f.kind === 'pct' ? +(v * 100).toFixed(4) : v; };
+function buildRates(){
+  $('rates').innerHTML = RATE_FIELDS.map((f, i) => f.h ? `<h3>${f.h}</h3>`
+    : `<div><label class="lbl" for="rate-${i}">${f.label}</label><input type="number" id="rate-${i}" data-i="${i}" step="${f.kind === 'pct' ? 0.1 : f.kind === 'vnd' ? 10000 : 1}" min="0" value="${showRate(f)}"></div>`).join('');
+}
+$('rates').addEventListener('input', e => {
+  const i = e.target.dataset.i; if (i == null) return;
+  const f = RATE_FIELDS[i]; const v = pos(e.target.value, null);
+  if (v == null) return;
+  setP(f.path, f.kind === 'pct' ? v / 100 : v);
+  normalizeRates(R); saveRates(); calc();
+});
+$('resetRates').addEventListener('click', () => { R = normalizeRates(cloneRates(CONFIG)); store.del('pv-rates'); buildRates(); calc(); toast('Ставки сброшены к ноябрю 2026'); });
+buildRates();
+
+/* ---------- Переключатели ---------- */
 function seg(id, key){
   $(id).addEventListener('click', e => {
-    const b = e.target.closest('button'); if(!b) return;
+    const b = e.target.closest('button'); if (!b || !b.dataset.v) return;
     state[key] = b.dataset.v;
-    [...$(id).children].forEach(x => x.setAttribute('aria-pressed', x === b));
+    [...$(id).querySelectorAll('button')].forEach(x => x.setAttribute('aria-pressed', x === b));
     calc();
   });
 }
-seg('form','form'); seg('dir','dir');
+seg('citizen', 'citizen'); seg('resident', 'resident'); seg('dir', 'dir'); seg('per', 'per');
 $('f').addEventListener('input', calc);
 $('f').addEventListener('submit', e => e.preventDefault());
 
-function pit(taxable, months=1){
-  let tax = 0, prev = 0;
-  for(const [lim, r] of CONFIG.pitBrackets){
-    const top = lim * months;
-    if(taxable > prev){ tax += (Math.min(taxable, top) - prev) * r; }
-    prev = top;
-  }
-  return Math.max(0, tax);
+/* ---------- Подсказки ---------- */
+const tipbox = $('tipbox'); let tipFor = null;
+function showTip(el){
+  tipFor = el; tipbox.textContent = el.dataset.tip; tipbox.hidden = false;
+  const r = el.getBoundingClientRect(), w = tipbox.offsetWidth, h = tipbox.offsetHeight;
+  let left = Math.min(Math.max(16, r.left + r.width / 2 - w / 2), window.innerWidth - w - 16);
+  let top = r.bottom + 8; if (top + h > window.innerHeight - 8) top = r.top - h - 8;
+  tipbox.style.left = left + 'px'; tipbox.style.top = Math.max(8, top) + 'px';
 }
+function hideTip(){ tipbox.hidden = true; tipFor = null; }
+document.addEventListener('mouseover', e => { const t = e.target.closest('.tip'); if (t) showTip(t); });
+document.addEventListener('mouseout', e => { if (e.target.closest('.tip')) hideTip(); });
+document.addEventListener('focusin', e => { const t = e.target.closest('.tip'); if (t) showTip(t); });
+document.addEventListener('focusout', e => { if (e.target.closest('.tip')) hideTip(); });
+document.addEventListener('click', e => { const t = e.target.closest('.tip'); if (t){ e.preventDefault(); tipFor === t && !tipbox.hidden ? hideTip() : showTip(t); } else hideTip(); });
+window.addEventListener('scroll', hideTip, { passive: true });
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const tip = t => ` <button type="button" class="tip" data-tip="${esc(t)}">?</button>`;
 
-function inputs(){
-  const fx = +$('fx').value || 1;
+/* ---------- Форматирование ---------- */
+let FX = 26300;
+const fmtV = v => Math.round(v).toLocaleString('ru-RU') + ' ₫';
+const fmtU = v => { const x = Math.round(v / FX); return (x < 0 ? '−$' : '$') + Math.abs(x).toLocaleString('ru-RU'); };
+const fmtP = v => (+(v * 100).toFixed(2)).toLocaleString('ru-RU') + '%';
+const fmtM = v => (v / 1e6).toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + ' млн ₫';
+const line = (name, v, cls = '') => `<tr class="${cls}"><td>${name}</td><td class="n">${fmtV(v)}</td><td class="n">${fmtU(v)}</td></tr>`;
+const tile = (c, k, v, unit = '', extra = '') => `<div class="${c}"><div class="k">${k}</div><div class="v">${unit ? v : fmtU(v)}</div><div class="s">${unit || fmtV(v)}</div>${extra}</div>`;
+let tt; function toast(t){ $('toast').textContent = t; clearTimeout(tt); tt = setTimeout(() => $('toast').textContent = '', 4000); }
+
+/* ---------- Ввод ---------- */
+function readP(){
   return {
-    fx, region: $('region').value, deps: Math.max(0, +$('deps').value || 0),
-    m13: $('m13').checked,
-    ctax: (+$('ctax').value || 0)/100, cins: (+$('cins').value || 0)/100,
-    eorFeeVnd: (+$('eorfee').value || 0) * fx, tfee: (+$('tfee').value || 0)/100,
-    amountVnd: (+$('amt').value || 0) * ($('cur').value === 'USD' ? fx : 1)
+    citizen: state.citizen, permit12: $('permit').checked, resident: state.resident === 'res',
+    region: $('region').value, deps: pos($('deps').value), m13: $('m13').checked,
+    allow: pos($('allow').value), siBase: pos($('sibase').value),
+    probation: $('prob').checked, probPct: pos($('probpct').value, 85),
+    fx: pos($('fx').value, 0) || 1, amount: pos($('amt').value), cur: $('cur').value,
+    leave: Math.max(R.minLeave, pos($('leave').value, R.minLeave)), tenure: pos($('tenure').value),
+    hol: pos($('hol').value, 12), wd: Math.min(27, Math.max(15, pos($('wd').value, 22)))
   };
 }
+const typeLabel = p => (p.citizen === 'vn' ? 'Гражданин VN' : 'Иностранец' + (p.permit12 ? '' : ' (<12 мес)')) + ', ' + (p.resident ? 'резидент' : 'нерезидент');
 
-/* Трудовой договор: месяц и год */
-function labor(gross, p){
-  const siCap = CONFIG.baseSalary * CONFIG.capMultiplier;
-  const uiCap = CONFIG.regionalMin[p.region] * CONFIG.capMultiplier;
-  const insBase = Math.min(gross, siCap), uiBase = Math.min(gross, uiCap);
-  const E = CONFIG.employee, R = CONFIG.employer;
-  const eSi = insBase*E.si, eHi = insBase*E.hi, eUi = uiBase*E.ui;
-  const eIns = eSi + eHi + eUi;
-  const ded = CONFIG.personalDeduction + p.deps*CONFIG.dependentDeduction;
-  const taxable = Math.max(0, gross - eIns - ded);
-  const tax = pit(taxable);
-  const net = gross - eIns - tax;
-  const rSi = insBase*R.si, rHi = insBase*R.hi, rUi = uiBase*R.ui, rUn = insBase*R.union;
-  const er = rSi + rHi + rUi + rUn;
-  // год: 12 мес + 13-я (без взносов), НДФЛ по годовой шкале
-  const bonus = p.m13 ? gross : 0;
-  const yGross = gross*12 + bonus;
-  const yTaxable = Math.max(0, yGross - eIns*12 - ded*12);
-  const yTax = pit(yTaxable, 12);
-  return { gross, eSi, eHi, eUi, eIns, ded, taxable, tax, net, rSi, rHi, rUi, rUn, er,
-    cost: gross + er,
-    y: { gross: yGross, ins: eIns*12, tax: yTax, net: yGross - eIns*12 - yTax, er: er*12, cost: yGross + er*12 } };
-}
-function eor(gross, p){
-  const l = labor(gross, p);
-  const months = p.m13 ? 13 : 12;
-  const invoice = l.cost + p.eorFeeVnd;
-  const tf = invoice * p.tfee;
-  const yInvoice = l.y.cost + p.eorFeeVnd*12;
-  return { ...l, fee: p.eorFeeVnd, tf, cost: invoice + tf,
-    y: { ...l.y, cost: yInvoice * (1 + p.tfee) } };
-}
-function contractor(fee, p){
-  const tax = fee*p.ctax, ins = fee*p.cins;
-  const net = fee - tax - ins;
-  const tf = fee*p.tfee;
-  const months = p.m13 ? 13 : 12;
-  return { gross: fee, tax, ins, net, tf, cost: fee + tf,
-    y: { gross: fee*months, tax: tax*months, ins: ins*months, net: net*months, cost: (fee+tf)*months } };
-}
-const fns = { labor, eor, contractor };
-
-function solveNet(fn, target, p){
-  if(target <= 0) return 0;
-  let lo = 0, hi = target*3 + 1e7;
-  for(let i=0;i<80;i++){ const m=(lo+hi)/2; fn(m,p).net < target ? lo=m : hi=m; }
-  return hi;
-}
-
-const fmtV = v => Math.round(v).toLocaleString('ru-RU') + ' ₫';
-let FX = 1;
-const fmtU = v => '$' + Math.round(v/FX).toLocaleString('ru-RU');
-
+let LAST = null;
 function calc(){
-  const p = inputs(); FX = p.fx;
-  const fn = fns[state.form];
-  const gross = state.dir === 'gross' ? p.amountVnd : solveNet(fn, p.amountVnd, p);
-  const r = fn(gross, p);
+  const p = readP(); FX = p.fx;
+  const foreign = p.citizen === 'foreign';
+  $('permitRow').hidden = !foreign;
+  $('deps').disabled = !p.resident; $('depsHint').hidden = p.resident;
+  $('probpct').disabled = !p.probation;
+  $('amtLbl').textContent = { gross: 'Гросс в месяц', net: 'На руки в месяц', cost: 'Бюджет компании в месяц' }[state.dir];
 
-  const grossLabel = state.form === 'contractor' ? 'Ставка подрядчика' : 'Гросс';
-  $('hero').innerHTML = [
-    ['', grossLabel, r.gross], ['main', 'На руки', r.net], ['', 'Стоимость для компании', r.cost]
-  ].map(([c,k,v]) => `<div class="${c}"><div class="k">${k} / мес</div><div class="v">${fmtU(v)}</div><div class="s">${fmtV(v)}</div></div>`).join('');
+  const amountVnd = p.amount * (p.cur === 'USD' ? p.fx : 1);
+  const full = state.dir === 'gross' ? amountVnd : solve(state.dir, amountVnd, p, R);
+  const r = compute(full, p, R);
+  const rf = p.probation ? compute(full, { ...p, probation: false }, R) : null;
+  LAST = { p, r, rf };
 
-  // разбивка
-  const line = (name, v, cls='') => `<tr class="${cls}"><td>${name}</td><td class="n">${fmtV(v)}</td><td class="n">${fmtU(v)}</td></tr>`;
+  // Главные карточки
+  const Y = state.per === 'y', per = Y ? 'год' : 'мес';
+  const g = Y ? r.y.gross : r.gross, n = Y ? r.y.net : r.net, c = Y ? r.y.cost : r.cost;
+  const markup = g > 0 ? (c - g) / g : 0;
+  $('hero').innerHTML = tile('', `Гросс / ${per}`, g) + tile('main', `На руки / ${per}`, n)
+    + tile('', `Компании / ${per}`, c, '', `<div class="m">Наценка на гросс: ${fmtP(markup)}${tip('Сколько компания платит сверх гросса: взносы работодателя и профсоюзный сбор, в процентах от гросса.')}</div>`);
+
+  // Предупреждения
+  const w = [];
+  if (r.gross > 0 && r.gross < r.regMin) w.push(`<b>Гросс ниже МРОТ.</b> МРОТ (минимальная зарплата региона) ${p.region} — ${fmtV(r.regMin)}. Платить меньше по закону нельзя.`);
+  else if (r.siBase > 0 && r.siBase < r.regMin) w.push(`<b>Зарплата для соцстраха ниже МРОТ.</b> База для взносов не может быть меньше ${fmtV(r.regMin)} в регионе ${p.region}.`);
+  if (r.siBase > r.siCap) w.push(`<b>Выше потолка взносов.</b> Соц- и медстрах считаются только с ${fmtM(r.siCap)} (20 × базовый оклад). С суммы сверх потолка взносы не платятся.${r.uiOn && r.siBase > r.uiCap ? ` Страхование от безработицы — только с ${fmtM(r.uiCap)}.` : ''}`);
+  if (foreign && !p.permit12) w.push('<b>Соцстрах не начисляется.</b> Иностранцы платят его только при договоре от 12 месяцев и наличии разрешения на работу. Медстрах платится в любом случае.');
+  if (p.probation && pos(p.probPct, 85) < 85) w.push('<b>Слишком низкая зарплата на испытательном сроке.</b> По закону — не меньше 85% от оклада по договору.');
+  $('warns').innerHTML = w.map(x => `<div class="note">${x}</div>`).join('');
+
+  // Диаграмма
+  const parts = [
+    ['На руки', Y ? r.y.net : r.net, '--c-net'],
+    ['НДФЛ', Y ? r.y.tax : r.tax, '--c-tax'],
+    ['Взносы сотрудника', Y ? r.y.eIns : r.eIns, '--c-eins'],
+    ['Взносы работодателя', Y ? r.y.er : r.er, '--c-er']
+  ];
+  const tot = parts.reduce((a, x) => a + Math.max(0, x[1]), 0) || 1;
+  $('bar').innerHTML = parts.map(([l, v, col]) => `<span style="flex:0 0 ${Math.max(0, v) / tot * 100}%;background:var(${col})" title="${l}: ${fmtP(v / tot)}"></span>`).join('');
+  $('bar').setAttribute('aria-label', parts.map(([l, v]) => `${l} ${fmtP(v / tot)}`).join(', '));
+  $('legend').innerHTML = parts.map(([l, v, col]) => `<div><i style="background:var(${col})"></i><span>${l}</span><span class="lp">${fmtP(v / tot)}</span><span class="lv">${fmtU(v)}</span></div>`).join('')
+    + `<div style="grid-column:1/-1"><span class="hint" style="margin:0">Итого — стоимость для компании за ${per}: ${fmtV(c)}</span></div>`;
+
+  // Разбивка
+  const E = R.employee, ER = R.employer;
   let rows = `<tr><th>Статья</th><th>₫ / мес</th><th>$ / мес</th></tr>`;
-  if(state.form === 'contractor'){
-    $('bdTitle').textContent = 'Разбивка: подрядчик';
-    rows += line('Ставка подрядчика (выплата)', r.gross)
-      + line(`Налог подрядчика (${(p.ctax*100).toFixed(1)}%)`, -r.tax, 'sub')
-      + (r.ins ? line(`Добровольная страховка (${(p.cins*100).toFixed(1)}%)`, -r.ins, 'sub') : '')
-      + line('На руки', r.net, 'total')
-      + line(`Комиссия за перевод (${(p.tfee*100).toFixed(1)}%)`, r.tf, 'sub')
-      + line('Стоимость для компании', r.cost, 'total');
+  if (rf) rows += line(`Оклад по договору — на испытательном сроке ${pos(p.probPct, 85)}%`, rf.gross, 'info');
+  rows += line('Гросс' + tip('Зарплата до вычета налогов и взносов сотрудника.'), r.gross);
+  if (r.allow > 0) rows += line('из них необлагаемые выплаты' + tip('Обеды, форма, телефон в пределах норм. НДФЛ и взносы с них не платятся.'), r.allow, 'info');
+  if (r.siBase !== r.gross) rows += line('Зарплата для соцстраха', r.siBase, 'info');
+  rows += line((r.siOn ? `Соцстрах сотрудника (${fmtP(E.si)})` : 'Соцстрах сотрудника — не начисляется') + tip('SI: пенсия и пособия. Сотрудник платит часть из своей зарплаты.'), -r.eSi, 'sub')
+    + line(`Медстрах сотрудника (${fmtP(E.hi)})` + tip('HI: государственная медицинская страховка. Платится всегда, в том числе иностранцами.'), -r.eHi, 'sub')
+    + line((r.uiOn ? `Страх. от безработицы (${fmtP(E.ui)})` : 'Страх. от безработицы — не для иностранцев') + tip('UI: пособие при потере работы. Платят только граждане Вьетнама.'), -r.eUi, 'sub');
+  if (r.resident){
+    rows += line(`Вычеты: на себя${r.deps ? ` + ${r.deps} иждив.` : ''} (уменьшают базу)` + tip('Сумма, которая не облагается налогом: 15,5 млн ₫ на себя и 6,2 млн ₫ на каждого иждивенца в месяц.'), r.ded, 'info')
+      + line('Облагаемый доход' + tip('С этой суммы считается НДФЛ: гросс минус необлагаемые выплаты, взносы сотрудника и вычеты.'), r.taxable, 'info')
+      + line(`НДФЛ (подоходный налог), шкала 5–35% <button type="button" class="btn link" id="pitToggle">${state.showPit ? 'скрыть ступени' : 'по ступеням'}</button>`, -r.tax, 'sub');
+    if (state.showPit) rows += r.pitParts.filter(x => x.amount > 0 || x.from === 0).map(x =>
+      `<tr class="pit"><td>${fmtP(x.rate)} — с ${fmtV(x.amount)}${x.to === Infinity ? ` (свыше ${fmtM(x.from)})` : ` (${fmtM(x.from)}–${fmtM(x.to)})`}</td><td class="n">${fmtV(-x.tax)}</td><td class="n">${fmtU(-x.tax)}</td></tr>`).join('');
   } else {
-    $('bdTitle').textContent = state.form === 'eor' ? 'Разбивка: EOR' : 'Разбивка: трудовой договор';
-    rows += line('Гросс', r.gross)
-      + line('Соцстрах сотрудника (8%)', -r.eSi, 'sub')
-      + line('Медстрах сотрудника (1,5%)', -r.eHi, 'sub')
-      + line('Страх. от безработицы (1%)', -r.eUi, 'sub')
-      + `<tr class="sub"><td>Вычеты (на себя${p.deps?` + ${p.deps} иждив.`:''}) — не деньги, уменьшают базу</td><td class="n">${fmtV(r.ded)}</td><td class="n">${fmtU(r.ded)}</td></tr>`
-      + `<tr class="sub"><td>Облагаемый доход</td><td class="n">${fmtV(r.taxable)}</td><td class="n">${fmtU(r.taxable)}</td></tr>`
-      + line('НДФЛ (прогрессивная шкала)', -r.tax, 'sub')
-      + line('На руки', r.net, 'total')
-      + line('Соцстрах работодателя (17,5%)', r.rSi, 'sub')
-      + line('Медстрах работодателя (3%)', r.rHi, 'sub')
-      + line('Страх. от безработицы (1%)', r.rUi, 'sub')
-      + line('Профсоюзный сбор (2%)', r.rUn, 'sub');
-    if(state.form === 'eor'){
-      rows += line('Комиссия EOR', r.fee, 'sub') + line(`Комиссия за перевод (${(p.tfee*100).toFixed(1)}%)`, r.tf, 'sub');
-    }
-    rows += line('Стоимость для компании', r.cost, 'total');
+    rows += line('Облагаемый доход (без вычетов)' + tip('Нерезиденту вычеты не положены: налог берётся со всей облагаемой части зарплаты.'), r.taxable, 'info')
+      + line(`НДФЛ (подоходный налог) нерезидента, ${fmtP(R.nonResidentRate)}`, -r.tax, 'sub');
   }
-  const months = p.m13 ? 13 : 12;
-  rows += `<tr><th colspan="3" style="text-align:left;padding-top:18px">За год (${p.m13 ? '12 мес + 13-я' : '12 мес'})</th></tr>`
-    + line('Начислено', r.y.gross) + line('На руки', r.y.net, 'total') + line('Стоимость для компании', r.y.cost, 'total');
+  rows += line('На руки', r.net, 'total')
+    + line((r.siOn ? `Соцстрах работодателя (${fmtP(ER.si)})` : 'Соцстрах работодателя — не начисляется') + tip('Пенсия, больничные, декрет и страховка от несчастных случаев. Из этого фонда оплачиваются больничные.'), r.rSi, 'sub')
+    + line(`Медстрах работодателя (${fmtP(ER.hi)})` + tip('Доля компании в медицинской страховке сотрудника.'), r.rHi, 'sub')
+    + line((r.uiOn ? `Страх. от безработицы (${fmtP(ER.ui)})` : 'Страх. от безработицы — не для иностранцев') + tip('Доля компании в страховании от безработицы. Только для граждан Вьетнама.'), r.rUi, 'sub')
+    + line((r.siOn ? `Профсоюзный сбор (${fmtP(ER.union)})` : 'Профсоюзный сбор — нет базы соцстраха') + tip('Обязательный сбор работодателя в фонд профсоюзов. Считается с базы соцстраха, даже если сотрудник не член профсоюза.'), r.rUn, 'sub')
+    + line('Стоимость для компании', r.cost, 'total');
+  if (r.bonusMonth){
+    rows += `<tr class="sec"><th colspan="3">Месяц выплаты 13-й зарплаты</th></tr>`
+      + line('Начислено: зарплата + бонус', r.bonusMonth.gross)
+      + line('НДФЛ в этом месяце (взносы с бонуса не платятся)', -r.bonusMonth.tax, 'sub')
+      + line('На руки в месяц бонуса', r.bonusMonth.net, 'total');
+  }
+  if (rf){
+    rows += `<tr class="sec"><th colspan="3">Испытательный срок vs полная зарплата</th></tr>`
+      + line('На руки после испытательного', rf.net)
+      + line('Разница на руки', r.net - rf.net, 'sub')
+      + line('Стоимость после испытательного', rf.cost)
+      + line('Экономия компании в месяц', r.cost - rf.cost, 'sub');
+  }
+  rows += `<tr class="sec"><th colspan="3">За год (${p.m13 ? '12 мес + 13-я' : '12 мес'})</th></tr>`
+    + line('Начислено', r.y.gross)
+    + line('НДФЛ за год', -r.y.tax, 'sub')
+    + line('На руки', r.y.net, 'total')
+    + line('Взносы работодателя за год', r.y.er, 'sub')
+    + line('Стоимость для компании', r.y.cost, 'total');
   $('bd').innerHTML = rows;
 
-  // сравнение при одинаковом net
-  const target = r.net;
-  const names = { labor: 'Трудовой договор', contractor: 'Подрядчик', eor: 'EOR' };
-  const res = Object.keys(fns).map(k => { const g = solveNet(fns[k], target, p); return { k, ...fns[k](g, p) }; });
-  const best = res.reduce((a,b) => a.y.cost <= b.y.cost ? a : b).k;
-  $('cmp').innerHTML = `<tr><th>Форма</th><th>Гросс / ставка</th><th>На руки</th><th>Компании / мес</th><th>Компании / год</th></tr>`
-    + res.map(x => `<tr class="${x.k===best?'best':''}"><td>${names[x.k]}${x.k===best?'<span class="pill">дешевле</span>':''}</td>
-      <td class="n">${fmtU(x.gross)}</td><td class="n">${fmtU(x.net)}</td><td class="n">${fmtU(x.cost)}</td><td class="n">${fmtU(x.y.cost)}</td></tr>`).join('');
+  // Отпуск
+  const leaveDays = p.leave + Math.floor(p.tenure / 5) * R.leavePer5y;
+  const daily = r.gross / p.wd;
+  const yearDays = p.wd * 12;
+  const worked = Math.max(1, yearDays - leaveDays - p.hol);
+  const costPerDay = r.y.cost / worked;
+  $('lv').innerHTML = tile('', 'Дней отпуска', leaveDays, 'в год') + tile('', 'Праздников', p.hol, 'оплачиваемых дней')
+    + tile('', 'Рабочих дней', worked, `из ${yearDays} по графику`) + tile('main', 'Рабочий день компании', costPerDay);
+  $('lvt').innerHTML = `<tr><th>Статья</th><th>₫</th><th>$</th></tr>`
+    + line(`Дневная ставка (гросс ÷ ${p.wd})`, daily)
+    + line(`Отпускные за год (${leaveDays} дн.)`, leaveDays * daily)
+    + line(`Оплата праздников за год (${p.hol} дн.)`, p.hol * daily)
+    + line('Отпуск + праздники: уже входят в 12 зарплат', (leaveDays + p.hol) * daily, 'info')
+    + line('Компенсация за 1 неиспользованный день при увольнении', daily, 'sub')
+    + line(`Стоимость рабочего дня (годовая стоимость ÷ ${worked} дн.)`, costPerDay, 'total');
 
-  let w = '<b>Проверьте перед оффером.</b> ';
-  if(state.form === 'labor') w += 'Трудовой договор напрямую требует юрлица во Вьетнаме. ';
-  if(state.form === 'contractor') w += 'Подрядчик сам отчитывается по налогам и не получает соцстраховку от компании. Если по факту это постоянная работа, есть риск переквалификации в трудовые отношения. ';
-  if(state.form === 'eor') w += 'Тариф EOR в расчёте — пример; запросите точную стоимость у провайдера (Deel, Remote, Oyster и т.п.). ';
-  w += 'Ставки налогов сверьте с местным бухгалтером.';
-  $('warn').innerHTML = w;
+  renderAssumptions(p, r);
+  renderTeam();
 }
+
+$('bd').addEventListener('click', e => { if (e.target.id === 'pitToggle'){ state.showPit = !state.showPit; calc(); } });
+
+function renderAssumptions(p, r){
+  const a = [];
+  const who = p.citizen === 'vn' ? 'гражданин Вьетнама' : (p.permit12 ? 'иностранец с договором от 12 месяцев и разрешением на работу' : 'иностранец без договора на 12+ месяцев или без разрешения на работу');
+  a.push(`Сотрудник — ${who}, ${p.resident ? 'налоговый резидент (живёт во Вьетнаме 183+ дней в году)' : 'налоговый нерезидент (меньше 183 дней в году)'}.`);
+  if (p.resident) {
+    a.push('НДФЛ (подоходный налог): 5 ступеней (5–35%) по новому закону, применяется к доходам от работы с 2026 налогового периода.');
+    a.push(`Вычеты: ${fmtM(R.personalDeduction)} на себя и ${fmtM(R.dependentDeduction)} на каждого иждивенца в месяц (с 01.01.2026).`);
+  } else a.push(`НДФЛ нерезидента: ${fmtP(R.nonResidentRate)} со всей облагаемой части дохода, без вычетов на себя и иждивенцев.`);
+  const contrib = r.siOn
+    ? (r.uiOn ? `Взносы: соцстрах ${fmtP(R.employee.si)} / ${fmtP(R.employer.si)}, медстрах ${fmtP(R.employee.hi)} / ${fmtP(R.employer.hi)}, от безработицы ${fmtP(R.employee.ui)} / ${fmtP(R.employer.ui)} (сотрудник / работодатель).`
+              : `Взносы: соцстрах ${fmtP(R.employee.si)} / ${fmtP(R.employer.si)} и медстрах ${fmtP(R.employee.hi)} / ${fmtP(R.employer.hi)}. Страхование от безработицы иностранцы не платят.`)
+    : `Взносы: только медстрах ${fmtP(R.employee.hi)} / ${fmtP(R.employer.hi)}. Соцстрах, страхование от безработицы и профсоюзный сбор не начисляются.`;
+  a.push(contrib);
+  a.push(`Потолок для соц- и медстраха — ${R.capMultiplier} × базовый оклад (${fmtM(R.baseSalary)} с 01.07.2026) = ${fmtM(R.baseSalary * R.capMultiplier)}.${r.uiOn ? ` Для страхования от безработицы — ${R.capMultiplier} × МРОТ (минимальная зарплата региона) = ${fmtM(r.uiCap)}.` : ''}`);
+  a.push(r.siBase === r.gross ? 'Взносы считаются с гросса целиком.' : `Взносы считаются с отдельной суммы — ${fmtV(r.siBase)}.`);
+  if (p.allow > 0) a.push('Необлагаемые выплаты входят в гросс и «на руки», но НДФЛ и взносы с них не платятся. Проверьте, что суммы в пределах норм.');
+  if (p.m13) a.push('13-я зарплата облагается НДФЛ (за год — по годовой шкале), страховые взносы с неё не платятся.');
+  if (r.siOn) a.push(`Работодатель платит ${fmtP(R.employer.union)} профсоюзного сбора с базы соцстраха.`);
+  if (p.probation) a.push(`Испытательный срок: расчёт по ${pos(p.probPct, 85)}% от оклада по договору. Введённая сумма — полная зарплата после испытательного.`);
+  a.push(r.siOn ? 'Больничные, декретные и отцовский отпуск оплачивает фонд соцстраха из взносов работодателя, поэтому отдельно они не считаются.'
+               : 'Без соцстраха больничные и декретные из фонда не оплачиваются — условия стоит прописать в договоре.');
+  a.push('Отпуск и праздники оплачиваются по дневной ставке (гросс ÷ рабочие дни). При помесячном окладе эти деньги уже входят в 12 зарплат. Сверх ФОТ платится только компенсация за неиспользованный отпуск при увольнении.');
+  $('assume').innerHTML = a.map(x => `<li>${x}</li>`).join('');
+}
+
+/* ---------- Команда ---------- */
+let team = (() => { const t = store.get('pv-team'); return Array.isArray(t) ? t.filter(x => x && typeof x === 'object') : []; })();
+function renderTeam(){
+  if (!team.length){ $('team').innerHTML = `<tr><td class="empty">Список пуст. Посчитайте сотрудника и нажмите «Добавить в список».</td></tr>`; return; }
+  const s = k => team.reduce((a, x) => a + pos(x[k]), 0);
+  $('team').innerHTML = `<tr><th>Имя</th><th>Тип</th><th>Гросс</th><th>На руки</th><th>Компании / мес</th><th>Компании / год</th><th class="noprint"></th></tr>`
+    + team.map((x, i) => `<tr><td>${esc(x.name)}</td><td style="text-align:left;white-space:normal;color:var(--muted);font-size:.8rem">${esc(x.type)}</td><td class="n">${fmtU(x.gross)}</td><td class="n">${fmtU(x.net)}</td><td class="n">${fmtU(x.cost)}</td><td class="n">${fmtU(x.costY)}</td><td class="noprint"><button type="button" class="btn del" data-del="${i}" aria-label="Удалить ${esc(x.name)}">×</button></td></tr>`).join('')
+    + `<tr class="total"><td>Итого ФОТ (${team.length})</td><td></td><td class="n">${fmtU(s('gross'))}</td><td class="n">${fmtU(s('net'))}</td><td class="n">${fmtU(s('cost'))}</td><td class="n">${fmtU(s('costY'))}</td><td class="noprint"></td></tr>`;
+}
+$('addBtn').addEventListener('click', () => {
+  if (!LAST) return;
+  const { p, r } = LAST;
+  const name = $('who').value.trim() || `Сотрудник ${team.length + 1}`;
+  team.push({ name, type: typeLabel(p) + (p.probation ? ', исп. срок' : ''), gross: r.gross, net: r.net, cost: r.cost, costY: r.y.cost });
+  store.set('pv-team', team); $('who').value = ''; renderTeam(); toast(`«${name}» добавлен в список`);
+});
+$('who').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('addBtn').click(); } });
+$('team').addEventListener('click', e => { const i = e.target.dataset.del; if (i == null) return; team.splice(+i, 1); store.set('pv-team', team); renderTeam(); });
+$('clearBtn').addEventListener('click', () => {
+  const b = $('clearBtn');
+  if (b.dataset.confirm){ team = []; store.set('pv-team', team); renderTeam(); b.textContent = 'Очистить список'; delete b.dataset.confirm; toast('Список очищен'); }
+  else { b.dataset.confirm = '1'; b.textContent = 'Нажмите ещё раз, чтобы очистить'; setTimeout(() => { b.textContent = 'Очистить список'; delete b.dataset.confirm; }, 3000); }
+});
+
+/* ---------- Копирование, CSV, печать ---------- */
+function copyText(text, okMsg){
+  const fallback = () => { const o = $('copyout'); o.hidden = false; o.value = text; o.focus(); o.select(); toast('Не удалось скопировать автоматически — текст выделен ниже, скопируйте вручную.'); };
+  try { navigator.clipboard.writeText(text).then(() => { $('copyout').hidden = true; toast(okMsg); }, fallback); } catch(e){ fallback(); }
+}
+$('copyBtn').addEventListener('click', () => {
+  if (!LAST) return;
+  const { p, r, rf } = LAST; const v = x => `${fmtV(x)} (${fmtU(x)})`;
+  const t = [
+    'Payroll Vietnam — расчёт',
+    `Сотрудник: ${typeLabel(p)}, регион ${p.region}${p.resident && p.deps ? `, иждивенцев: ${p.deps}` : ''}`,
+    p.probation ? `Испытательный срок: ${pos(p.probPct, 85)}% от оклада ${v(rf.gross)}` : null,
+    `Гросс: ${v(r.gross)}`,
+    `Взносы сотрудника: ${v(r.eIns)}`,
+    `НДФЛ: ${v(r.tax)}`,
+    `На руки: ${v(r.net)}`,
+    `Взносы работодателя: ${v(r.er)}`,
+    `Стоимость для компании: ${v(r.cost)} в месяц, ${v(r.y.cost)} в год`,
+    r.bonusMonth ? `13-я зарплата: на руки в месяц бонуса ${v(r.bonusMonth.net)}` : null,
+    `Курс: ${p.fx.toLocaleString('ru-RU')} ₫ за $1`
+  ].filter(Boolean).join('\n');
+  copyText(t, 'Расчёт скопирован');
+});
+$('csvBtn').addEventListener('click', () => {
+  if (!team.length){ toast('Список пуст — сначала добавьте сотрудников'); return; }
+  const q = s => `"${String(s).replace(/"/g, '""')}"`;
+  const head = ['Имя', 'Тип', 'Гросс, ₫', 'На руки, ₫', 'Компании в месяц, ₫', 'Компании в год, ₫', 'Гросс, $', 'На руки, $', 'Компании в месяц, $', 'Компании в год, $'];
+  const rowOf = x => [q(x.name), q(x.type), ...['gross','net','cost','costY'].map(k => Math.round(x[k])), ...['gross','net','cost','costY'].map(k => Math.round(x[k] / FX))];
+  const sum = k => team.reduce((a, x) => a + pos(x[k]), 0);
+  const tot = { name: 'Итого ФОТ', type: '', gross: sum('gross'), net: sum('net'), cost: sum('cost'), costY: sum('costY') };
+  const csv = [head.map(q), ...team.map(rowOf), rowOf(tot)].map(r => r.join(';')).join('\n');
+  try {
+    const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    const a = document.createElement('a'); a.href = url; a.download = 'payroll-vietnam-team.csv'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  } catch(e){}
+  copyText(csv, inFrame ? 'CSV скопирован в буфер. Скачивание файла работает в версии на GitHub.' : 'CSV скачан и скопирован в буфер');
+});
+$('printBtn').addEventListener('click', () => {
+  try { window.print(); } catch(e){}
+  if (inFrame) toast('В окне Claude печать заблокирована — откройте версию на GitHub.');
+});
+
 calc();
 </script>
 </body>
